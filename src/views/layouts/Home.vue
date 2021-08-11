@@ -6,7 +6,7 @@
           <i class="el-icon-house"></i>
           <span slot="title">首页</span>
         </el-menu-item>
-        <el-menu-item index="Trips">
+        <el-menu-item index="Travel">
           <i class="el-icon-position"></i>
           <span slot="title">旅途管理</span>
         </el-menu-item>

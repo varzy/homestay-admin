@@ -3,6 +3,12 @@ import VueRouter from 'vue-router';
 import Home from '../views/layouts/Home.vue';
 import _import from './importer';
 
+const originalPush = VueRouter.prototype.push;
+VueRouter.prototype.push = function push(location, onResolve, onReject) {
+  if (onResolve || onReject) return originalPush.call(this, location, onResolve, onReject);
+  return originalPush.call(this, location).catch((err) => err);
+};
+
 Vue.use(VueRouter);
 
 const routes = [
@@ -10,6 +16,7 @@ const routes = [
     path: '/',
     name: 'Home',
     component: Home,
+    redirect: { name: 'Index' },
     children: [
       {
         path: '',
@@ -17,9 +24,9 @@ const routes = [
         component: _import('index/Index'),
       },
       {
-        path: 'trips',
-        name: 'Trips',
-        component: _import('trips/Index'),
+        path: 'travel',
+        name: 'Travel',
+        component: _import('travel/Index'),
       },
     ],
   },
