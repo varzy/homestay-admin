@@ -3,9 +3,14 @@
     <el-card>
       <el-button type="primary" @click="onCreate">添加旅途</el-button>
 
-      <el-table class="table" :data="tableData">
-        <el-table-column label="#" type="index"> </el-table-column>
-        <el-table-column label="ID" prop="id"></el-table-column>
+      <el-table size="mini" class="g-gap" :data="tableData" v-loading="isTableLoading">
+        <el-table-column label="#" type="index"  :index="calcTableIndex"></el-table-column>
+        <el-table-column label="ID" prop="id" width="96px"></el-table-column>
+        <el-table-column label="封面图" width="108px">
+          <template slot-scope="scope">
+            <img class="cover" :src="scope.row.cover" :alt="scope.row.title">
+          </template>
+        </el-table-column>
         <el-table-column label="标题" prop="title"></el-table-column>
         <el-table-column label="价格">
           <template slot-scope="scope"> {{ scope.row.price / 100 }} 元 </template>
@@ -17,9 +22,23 @@
           </template>
         </el-table-column>
       </el-table>
+      <el-pagination
+      class="g-gap-s"
+        :hide-on-single-page="pagination.total <= pagination.size"
+        background
+        layout="total, prev, pager, next"
+        :total="pagination.total"
+        :current-page="pagination.page"
+        :page-size="pagination.size"
+        @current-change="handlePageChanged"
+      >
+      </el-pagination>
     </el-card>
 
     <el-dialog
+      small
+      :page-size="pagination.size"
+      :current-page="pagination.page"
       :visible.sync="isDialogVisible"
       width="640px"
       :close-on-click-modal="false"
@@ -56,6 +75,7 @@ export default {
   data() {
     return {
       isDialogVisible: false,
+      isTableLoading: false,
       isDialogSubmitting: false,
       tableData: [],
       form: {
@@ -63,6 +83,7 @@ export default {
         price: '',
         cover: '',
       },
+      pagination: { page: 1, size: 15, total: 0 },
     };
   },
 
@@ -75,8 +96,18 @@ export default {
     // Table
     // ==================================
     async getTravel() {
-      const res = await reqFetchTrips();
-      this.tableData = res.data;
+      try {
+        this.isTableLoading = true;
+
+        const res = await reqFetchTrips({ page: this.pagination.page, size: this.pagination.size });
+        this.tableData = res.data.list;
+        this.pagination.total = res.data.total;
+      } finally {
+        this.isTableLoading = false;
+      }
+    },
+    calcTableIndex(index) {
+      return (this.pagination.page - 1) * this.pagination.size + index + 1;
     },
     onCreate() {
       this.isDialogVisible = true;
@@ -86,6 +117,10 @@ export default {
     },
     onDelete({ row }) {
       console.log(row);
+    },
+    handlePageChanged(current) {
+      this.pagination.page = current;
+      this.getTravel();
     },
     // ==================================
     // Dialog
@@ -115,8 +150,12 @@ export default {
 
 <style scoped lang="scss">
 .travel {
-  .table {
-    margin-top: 16px;
+  .cover {
+    width: 100%;
+    height: 72px;
+    // 保证图片比例进行裁切
+    object-fit: cover;
+    border-radius: 4px;
   }
 }
 </style>
