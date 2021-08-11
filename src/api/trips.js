@@ -6,3 +6,10 @@ export const reqFetchTrips = (params) =>
     method: 'GET',
     params,
   });
+
+export const reqCreateTrip = (data) =>
+  http({
+    url: `/trips`,
+    method: 'POST',
+    data,
+  });
