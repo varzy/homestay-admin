@@ -13,3 +13,10 @@ export const reqCreateTrip = (data) =>
     method: 'POST',
     data,
   });
+
+export const reqUpdateTrip = (id, data) =>
+  http({
+    url: `/trips/${id}`,
+    method: 'PUT',
+    data,
+  });
