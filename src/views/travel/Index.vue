@@ -18,7 +18,11 @@
         <el-table-column label="操作">
           <template slot-scope="scope">
             <el-button plain type="primary" size="mini" @click="onEdit(scope)">编辑</el-button>
-            <el-button plain type="danger" size="mini" @click="onDelete(scope)">删除</el-button>
+            <el-popconfirm title="确定删除吗？" @confirm="onDelete(scope)">
+              <el-button slot="reference" plain type="danger" size="mini" style="margin-left: 8px"
+                >删除</el-button
+              >
+            </el-popconfirm>
           </template>
         </el-table-column>
       </el-table>
@@ -74,7 +78,16 @@
 </template>
 
 <script>
-import { reqFetchTrips, reqCreateTrip, reqUpdateTrip } from '@/api/trips';
+/**
+ * @Questions
+ * 1. Q: 假如列表页接口没有给你返回全部数据，比如 price，但是编辑时需要编辑 price，怎么做？
+ *    H: 点击编辑的时候，先请求详情接口
+ * 2. Q: 假如删除了某一页的最后一条数据，分页做什么样的行为？比如删除第 4 页最后一条数据，应该到第三页
+ * 3. Q: 分页支持改变每页条数，即 pagination.size 支持变化
+ * 4. Q: 当前组件代码量已经很大了，但实际上表格逻辑和弹窗逻辑关联并不大，能否拆成两个独立的组件？
+ */
+
+import { reqFetchTrips, reqCreateTrip, reqUpdateTrip, reqDestroyTrip } from '@/api/trips';
 
 export default {
   name: 'Travel',
@@ -155,8 +168,15 @@ export default {
       this.form.price = row.price / 100;
       this.form.cover = row.cover;
     },
-    onDelete({ row }) {
-      console.log(row);
+    async onDelete({ row }) {
+      try {
+        this.isTableLoading = true;
+        await reqDestroyTrip(row.id);
+        this.$message.success('删除成功');
+        this.getTravel();
+      } finally {
+        this.isTableLoading = false;
+      }
     },
     handlePageChanged(current) {
       this.pagination.page = current;

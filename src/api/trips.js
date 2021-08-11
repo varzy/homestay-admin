@@ -7,6 +7,12 @@ export const reqFetchTrips = (params) =>
     params,
   });
 
+export const reqShowTrip = (id) =>
+http({
+  url: `/trips/${id}`,
+  method: 'GET',
+});
+
 export const reqCreateTrip = (data) =>
   http({
     url: `/trips`,
@@ -19,4 +25,10 @@ export const reqUpdateTrip = (id, data) =>
     url: `/trips/${id}`,
     method: 'PUT',
     data,
+  });
+
+export const reqDestroyTrip = (id) =>
+  http({
+    url: `/trips/${id}`,
+    method: 'DELETE',
   });
