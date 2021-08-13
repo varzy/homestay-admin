@@ -10,6 +10,14 @@
           <i class="el-icon-position"></i>
           <span slot="title">旅途管理</span>
         </el-menu-item>
+        <el-menu-item index="TravelV2">
+          <i class="el-icon-position"></i>
+          <span slot="title">旅途管理 V2</span>
+        </el-menu-item>
+        <el-menu-item index="TravelV3">
+          <i class="el-icon-position"></i>
+          <span slot="title">旅途管理 V3</span>
+        </el-menu-item>
       </el-menu>
     </aside>
     <div class="home-content">

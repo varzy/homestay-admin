@@ -28,6 +28,16 @@ const routes = [
         name: 'Travel',
         component: _import('travel/Index'),
       },
+      {
+        path: 'travel-v2',
+        name: 'TravelV2',
+        component: _import('travel-v2/Index'),
+      },
+      {
+        path: 'travel-v3',
+        name: 'TravelV3',
+        component: _import('travel-v3/Index'),
+      },
     ],
   },
 ];
