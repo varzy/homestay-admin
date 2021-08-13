@@ -8,10 +8,10 @@ export const reqFetchTrips = (params) =>
   });
 
 export const reqShowTrip = (id) =>
-http({
-  url: `/trips/${id}`,
-  method: 'GET',
-});
+  http({
+    url: `/trips/${id}`,
+    method: 'GET',
+  });
 
 export const reqCreateTrip = (data) =>
   http({

@@ -28,21 +28,20 @@
       </el-table>
       <el-pagination
         class="g-gap-s"
-        :hide-on-single-page="pagination.total <= pagination.size"
         background
-        layout="total, prev, pager, next"
+        layout="total,sizes, prev, pager, next"
         :total="pagination.total"
         :current-page="pagination.page"
         :page-size="pagination.size"
+        :page-sizes="[startupPageSize, 30, 50, 100]"
         @current-change="handlePageChanged"
+        @size-change="handleSizeChanged"
       >
       </el-pagination>
     </el-card>
 
     <el-dialog
       small
-      :page-size="pagination.size"
-      :current-page="pagination.page"
       :visible.sync="isDialogVisible"
       width="640px"
       :close-on-click-modal="false"
@@ -87,19 +86,22 @@
  * 4. Q: 当前组件代码量已经很大了，但实际上表格逻辑和弹窗逻辑关联并不大，能否拆成两个独立的组件？
  */
 
-import { reqFetchTrips, reqCreateTrip, reqUpdateTrip, reqDestroyTrip } from '@/api/trips';
+import { reqFetchTrips, reqCreateTrip, reqUpdateTrip, reqDestroyTrip, reqShowTrip } from '@/api/trips';
 
 export default {
   name: 'Travel',
 
   data() {
+    const startupPageSize = 15;
+
     return {
       isDialogVisible: false,
       isTableLoading: false,
       isDialogSubmitting: false,
       dialogType: '',
       tableData: [],
-      pagination: { page: 1, size: 15, total: 0 },
+      startupPageSize,
+      pagination: { page: 1, size: startupPageSize, total: 0 },
       form: {
         id: 0,
         title: '',
@@ -157,22 +159,29 @@ export default {
       this.dialogType = 'CREATE';
       this.isDialogVisible = true;
     },
-    onEdit({ row }) {
+    async onEdit({ row }) {
       this.dialogType = 'EDIT';
       this.isDialogVisible = true;
       // 不应该这么写！保证你所有的数据都和 data 中定义的结构完全一致，保证可控
       // 而且会导致对象的引用，如果更改子组件，父组件的值也会一起改变
       // this.form = row;
-      this.form.id = row.id;
-      this.form.title = row.title;
-      this.form.price = row.price / 100;
-      this.form.cover = row.cover;
+
+      const res = await reqShowTrip(row.id);
+      this.form.id = res.data.id;
+      this.form.title = res.data.title;
+      this.form.price = res.data.price / 100;
+      this.form.cover = res.data.cover;
     },
     async onDelete({ row }) {
       try {
         this.isTableLoading = true;
         await reqDestroyTrip(row.id);
         this.$message.success('删除成功');
+
+        if (this.tableData.length === 1) {
+          this.pagination.page -= 1;
+        }
+
         this.getTravel();
       } finally {
         this.isTableLoading = false;
@@ -180,6 +189,10 @@ export default {
     },
     handlePageChanged(current) {
       this.pagination.page = current;
+      this.getTravel();
+    },
+    handleSizeChanged(size) {
+      this.pagination.size = size;
       this.getTravel();
     },
     // ==================================
